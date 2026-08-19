@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>日记 · 暗</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0b0a12;
+            background-image:
+                radial-gradient(ellipse at 20% 30%, rgba(60, 20, 40, 0.35) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 70%, rgba(30, 10, 50, 0.40) 0%, transparent 55%),
+                linear-gradient(145deg, #0b0a12 0%, #15101e 100%);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px 60px;
+            font-family: 'Ma Shan Zheng', '华文行楷', '楷体', serif;
+            color: #2d1f14;
+        }
+
+        /* ===== 日记本容器 ===== */
+        .diary-container {
+            max-width: 620px;
+            width: 100%;
+            position: relative;
+        }
+
+        /* ===== 标题 ===== */
+        .diary-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header-image {
+            height: 56px;
+            width: auto;
+            border-radius: 4px;
+            filter: drop-shadow(0 0 20px rgba(180, 120, 80, 0.20)) drop-shadow(0 0 60px rgba(120, 80, 50, 0.08));
+            transition: filter 0.4s ease, transform 0.4s ease;
+            flex-shrink: 0;
+            image-rendering: auto;
+        }
+
+        .header-image:hover {
+            filter: drop-shadow(0 0 30px rgba(180, 120, 80, 0.35)) drop-shadow(0 0 80px rgba(120, 80, 50, 0.15));
+            transform: scale(1.02);
+        }
+
+        .header-text {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .diary-header h1 {
+            font-family: 'Ma Shan Zheng', '华文行楷', '楷体', serif;
+            font-size: 42px;
+            font-weight: normal;
+            color: #d9c8b0;
+            letter-spacing: 8px;
+            text-shadow: 0 0 30px rgba(180, 120, 80, 0.15), 0 4px 20px rgba(0, 0, 0, 0.6);
+            position: relative;
+            display: inline-block;
+        }
+
+        .diary-header h1::before {
+            content: '❖';
+            font-size: 20px;
+            color: #8b5a3a;
+            opacity: 0.5;
+            margin-right: 14px;
+            vertical-align: middle;
+        }
+        .diary-header h1::after {
+            content: '❖';
+            font-size: 20px;
+            color: #8b5a3a;
+            opacity: 0.5;
+            margin-left: 14px;
+            vertical-align: middle;
+        }
+
+        .diary-header .subtitle {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 14px;
+            color: #7a6553;
+            letter-spacing: 12px;
+            margin-top: 4px;
+            opacity: 0.6;
+        }
+
+        /* ===== 装饰分割线 ===== */
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #8b6b4f, transparent);
+            margin: 0 auto 36px;
+            opacity: 0.3;
+        }
+
+        /* ===== 单篇日记卡片 ===== */
+        .entry {
+            background: linear-gradient(165deg, #f3e6d4 0%, #e6d5be 100%);
+            border-radius: 6px 6px 8px 8px;
+            padding: 30px 32px 26px;
+            margin-bottom: 32px;
+            position: relative;
+            box-shadow:
+                0 8px 40px rgba(0, 0, 0, 0.55),
+                0 2px 8px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 245, 230, 0.5);
+            transition: transform 0.25s ease, box-shadow 0.3s ease;
+            animation: fadeUp 0.6s ease both;
+            background-image:
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(180, 150, 120, 0.04) 2px,
+                    rgba(180, 150, 120, 0.04) 4px),
+                radial-gradient(ellipse at 30% 20%, rgba(200, 170, 140, 0.10) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(160, 130, 100, 0.08) 0%, transparent 50%);
+        }
+
+        .entry::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(180, 150, 120, 0.15) 10%,
+                    transparent 20%,
+                    rgba(180, 150, 120, 0.10) 40%,
+                    transparent 55%,
+                    rgba(180, 150, 120, 0.12) 75%,
+                    transparent 90%);
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            filter: blur(1px);
+        }
+
+        .entry::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg,
+                    transparent 5%,
+                    rgba(140, 110, 80, 0.08) 25%,
+                    transparent 45%,
+                    rgba(140, 110, 80, 0.06) 65%,
+                    transparent 85%);
+            filter: blur(1px);
+        }
+
+        .entry:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+        .entry:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+        .entry:nth-child(3) {
+            animation-delay: 0.25s;
+        }
+        .entry:nth-child(4) {
+            animation-delay: 0.35s;
+        }
+        .entry:nth-child(5) {
+            animation-delay: 0.45s;
+        }
+
+        .entry:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 14px 50px rgba(0, 0, 0, 0.65),
+                0 4px 12px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 245, 230, 0.5);
+        }
+
+        /* ===== 日记头部 ===== */
+        .entry-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(160, 130, 105, 0.25);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .entry-date {
+            font-family: 'Ma Shan Zheng', '华文行楷', '楷体', serif;
+            font-size: 22px;
+            color: #7a3a2a;
+            letter-spacing: 1px;
+            font-weight: normal;
+        }
+
+        .entry-weather {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 16px;
+            color: #6a5a4a;
+            background: rgba(160, 130, 105, 0.12);
+            padding: 0 12px;
+            border-radius: 20px;
+            line-height: 1.8;
+        }
+
+        .entry-mood {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 15px;
+            color: #7a6a5a;
+            margin-left: auto;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        .entry-mood::before {
+            content: '♢ ';
+            color: #9a7a5a;
+            opacity: 0.5;
+        }
+
+        .entry-body {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 17px;
+            line-height: 2;
+            color: #2d1f14;
+            letter-spacing: 0.5px;
+            padding: 2px 0 4px;
+            text-align: justify;
+        }
+
+        .entry-body p {
+            text-indent: 2em;
+            margin: 0;
+        }
+
+        .entry-source {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 13px;
+            color: #8a7a6a;
+            text-align: right;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(160, 130, 105, 0.20);
+            letter-spacing: 2px;
+            opacity: 0.65;
+        }
+
+        .entry-source::before {
+            content: '📎 ';
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        /* ===== 隐藏日记（初始隐藏） ===== */
+        .entry-hidden {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px) scale(0.97);
+            transition: none;
+            margin-bottom: 32px;
+            border-left: 3px solid rgba(180, 120, 70, 0.30);
+            position: relative;
+        }
+
+        .entry-hidden.revealed {
+            display: block;
+            animation: fadeUp 0.7s ease forwards;
+            animation-delay: 0.1s;
+        }
+
+        .entry-hidden .entry-header .entry-date {
+            color: #8a3a2a;
+        }
+
+        .entry-hidden .entry-header .entry-date .lock-icon {
+            font-size: 16px;
+            margin-left: 8px;
+            opacity: 0.6;
+        }
+
+        .entry-hidden .entry-body .highlight {
+            color: #8a3a2a;
+            font-weight: bold;
+            letter-spacing: 1px;
+            background: rgba(180, 120, 70, 0.08);
+            padding: 0 4px;
+            border-radius: 2px;
+        }
+
+        .entry-hidden .entry-body .code-line {
+            display: block;
+            margin: 10px 0 6px;
+            padding: 10px 16px;
+            background: rgba(20, 15, 30, 0.70);
+            border-radius: 4px;
+            border-left: 3px solid #b8864a;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            font-size: 15px;
+            letter-spacing: 1.5px;
+            color: #c8b898;
+            text-shadow: 0 0 12px rgba(180, 150, 100, 0.12);
+            text-indent: 0;
+            line-height: 1.8;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25);
+            animation: codeGlow 3s ease-in-out infinite;
+        }
+
+        .entry-hidden .entry-body .code-line::before {
+            content: '▸ ';
+            color: #b8864a;
+            opacity: 0.6;
+        }
+
+        @keyframes codeGlow {
+            0%,
+            100% {
+                box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25), 0 0 8px rgba(180, 150, 100, 0.04);
+                border-left-color: #b8864a;
+            }
+            50% {
+                box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.25), 0 0 20px rgba(180, 150, 100, 0.10);
+                border-left-color: #d4a86a;
+            }
+        }
+
+        .entry-hidden .entry-source {
+            border-top-color: rgba(160, 130, 105, 0.30);
+        }
+
+        .entry-hidden .entry-source[data-device="记忆"]::before {
+            content: '🕯️ ';
+            font-size: 13px;
+        }
+
+        /* ===== 解锁区域 ===== */
+        .unlock-section {
+            background: rgba(20, 15, 30, 0.50);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 8px;
+            padding: 28px 30px 24px;
+            margin: 8px 0 32px;
+            border: 1px solid rgba(180, 150, 120, 0.12);
+            box-shadow:
+                0 4px 30px rgba(0, 0, 0, 0.40),
+                inset 0 1px 0 rgba(255, 245, 230, 0.04);
+            transition: opacity 0.5s ease, transform 0.5s ease, max-height 0.6s ease;
+            position: relative;
+            overflow: hidden;
+            display: block; /* 默认隐藏由 .hidden 控制 */
+        }
+
+        /* 初始隐藏 */
+        .unlock-section.hidden {
+            display: none;
+        }
+
+        .unlock-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 40%, rgba(180, 120, 80, 0.04) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .unlock-section .unlock-label {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 15px;
+            color: #b8a898;
+            letter-spacing: 4px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .unlock-section .unlock-label .lock-emoji {
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
+        .unlock-section .unlock-label .label-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(180, 150, 120, 0.20), transparent);
+        }
+
+        .unlock-row {
+            display: flex;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+
+        .unlock-row input {
+            flex: 1;
+            min-width: 160px;
+            padding: 12px 16px;
+            background: rgba(10, 8, 18, 0.70);
+            border: 1px solid rgba(180, 150, 120, 0.15);
+            border-radius: 4px;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            font-size: 15px;
+            color: #d9c8b0;
+            letter-spacing: 1.5px;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.30);
+        }
+
+        .unlock-row input::placeholder {
+            color: #5a4a3a;
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            letter-spacing: 2px;
+            font-size: 14px;
+            opacity: 0.5;
+        }
+
+        .unlock-row input:focus {
+            border-color: rgba(180, 150, 120, 0.35);
+            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.30), 0 0 20px rgba(180, 150, 120, 0.06);
+        }
+
+        .unlock-row input.error {
+            border-color: rgba(180, 60, 50, 0.50);
+            animation: shake 0.4s ease;
+        }
+
+        @keyframes shake {
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+            20% {
+                transform: translateX(-6px);
+            }
+            40% {
+                transform: translateX(6px);
+            }
+            60% {
+                transform: translateX(-4px);
+            }
+            80% {
+                transform: translateX(4px);
+            }
+        }
+
+        .unlock-row button {
+            padding: 12px 28px;
+            background: linear-gradient(145deg, rgba(180, 150, 120, 0.15), rgba(120, 90, 70, 0.20));
+            border: 1px solid rgba(180, 150, 120, 0.20);
+            border-radius: 4px;
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 15px;
+            color: #c8b8a8;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.20);
+            white-space: nowrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .unlock-row button:hover {
+            background: linear-gradient(145deg, rgba(180, 150, 120, 0.25), rgba(120, 90, 70, 0.30));
+            border-color: rgba(180, 150, 120, 0.35);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.30), 0 0 30px rgba(180, 150, 120, 0.05);
+            transform: translateY(-1px);
+        }
+
+        .unlock-row button:active {
+            transform: translateY(0px);
+        }
+
+        .unlock-message {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 14px;
+            color: #b8a898;
+            margin-top: 12px;
+            min-height: 24px;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .unlock-message.error {
+            color: #c87060;
+        }
+
+        .unlock-message.success {
+            color: #a8b890;
+        }
+
+        /* ===== 来源特殊标记 ===== */
+        .entry-source[data-device="手表"]::before {
+            content: '⌚ ';
+            font-size: 13px;
+        }
+        .entry-source[data-device="手机"]::before {
+            content: '📱 ';
+            font-size: 13px;
+        }
+
+        /* ===== 动画 ===== */
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(24px) scale(0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ===== 页脚 ===== */
+        .diary-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 13px;
+            color: #4a3a2e;
+            letter-spacing: 4px;
+            opacity: 0.2;
+            padding: 20px 0 10px;
+            border-top: 1px solid rgba(100, 80, 60, 0.08);
+            cursor: default;
+            transition: opacity 0.3s ease;
+            user-select: none;
+        }
+
+        .diary-footer:hover {
+            opacity: 0.35;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 12px 40px;
+            }
+
+            .diary-header {
+                gap: 10px;
+            }
+
+            .header-image {
+                height: 40px;
+            }
+
+            .diary-header h1 {
+                font-size: 30px;
+                letter-spacing: 4px;
+            }
+            .diary-header h1::before,
+            .diary-header h1::after {
+                font-size: 14px;
+                margin: 0 8px;
+            }
+            .diary-header .subtitle {
+                font-size: 12px;
+                letter-spacing: 6px;
+            }
+
+            .entry {
+                padding: 20px 18px 18px;
+                margin-bottom: 24px;
+                border-radius: 4px;
+            }
+
+            .entry-date {
+                font-size: 19px;
+            }
+            .entry-weather {
+                font-size: 14px;
+                padding: 0 10px;
+            }
+            .entry-mood {
+                font-size: 13px;
+                margin-left: auto;
+            }
+            .entry-body {
+                font-size: 15px;
+                line-height: 1.9;
+            }
+
+            .entry-hidden .entry-body .code-line {
+                font-size: 13px;
+                padding: 10px 12px;
+                letter-spacing: 0.5px;
+                word-break: break-all;
+            }
+
+            .entry-source {
+                font-size: 12px;
+            }
+
+            .divider {
+                width: 40px;
+                margin-bottom: 24px;
+            }
+
+            .unlock-section {
+                padding: 20px 18px 18px;
+                margin: 4px 0 24px;
+            }
+
+            .unlock-section .unlock-label {
+                font-size: 13px;
+                letter-spacing: 2px;
+            }
+
+            .unlock-row {
+                gap: 8px;
+            }
+
+            .unlock-row input {
+                padding: 10px 14px;
+                font-size: 13px;
+                min-width: 120px;
+            }
+
+            .unlock-row button {
+                padding: 10px 18px;
+                font-size: 13px;
+                letter-spacing: 2px;
+            }
+
+            .unlock-message {
+                font-size: 13px;
+                min-height: 20px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .diary-header {
+                gap: 8px;
+            }
+
+            .header-image {
+                height: 32px;
+            }
+
+            .entry-header {
+                gap: 4px 10px;
+            }
+            .entry-date {
+                font-size: 17px;
+            }
+            .entry-weather {
+                font-size: 12px;
+                padding: 0 8px;
+            }
+            .entry-mood {
+                font-size: 12px;
+            }
+            .entry-body {
+                font-size: 14px;
+            }
+            .entry {
+                padding: 16px 14px 14px;
+            }
+
+            .unlock-row input {
+                font-size: 12px;
+                padding: 8px 12px;
+                min-width: 100px;
+            }
+
+            .unlock-row button {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+        }
+
+        /* ===== 滚动条美化 ===== */
+        ::-webkit-scrollbar {
+            width: 4px;
+            background: #0b0a12;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0a12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a3a2e;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a4a3e;
+        }
+
+        /* ===== 选中文字样式 ===== */
+        ::selection {
+            background: rgba(180, 130, 80, 0.25);
+            color: #2d1f14;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diary-container">
+
+        <!-- ===== 标题 ===== -->
+        <header class="diary-header">
+            <img src="a.png" alt="暗之印记" class="header-image" onerror="this.style.display='none'" />
+            <div class="header-text">
+                <h1>日记</h1>
+                <div class="subtitle">— 暗 · 录 —</div>
+            </div>
+        </header>
+        <div class="divider"></div>
+
+        <!-- ===== 日记条目 1 ===== -->
+        <article class="entry">
+            <div class="entry-header">
+                <span class="entry-date">8/8日</span>
+                <span class="entry-weather">☀️ 晴</span>
+                <span class="entry-mood">心情：无</span>
+            </div>
+            <div class="entry-body">
+                <p>今天妈妈又给我搞了饮料 说来也很奇怪 似乎从很久之前妈妈就要求我每天必须喝这个 刚入口好苦啊 即使我喝过这么多次 还是那么苦</p>
+            </div>
+            <div class="entry-source" data-device="手机">来源：手机</div>
+        </article>
+
+        <!-- ===== 日记条目 2 ===== -->
+        <article class="entry">
+            <div class="entry-header">
+                <span class="entry-date">8/9日</span>
+                <span class="entry-weather">☁️ 阴</span>
+                <span class="entry-mood">心情：无</span>
+            </div>
+            <div class="entry-body">
+                <p>昨天父母吵了一架 好像是因为我。我是不是活在世上就是个累赘。</p>
+            </div>
+            <div class="entry-source" data-device="手机">来源：手机</div>
+        </article>
+
+        <!-- ===== 日记条目 3 ===== -->
+        <article class="entry">
+            <div class="entry-header">
+                <span class="entry-date">8/13日</span>
+                <span class="entry-weather">🌧️ 雨</span>
+                <span class="entry-mood">心情：无</span>
+            </div>
+            <div class="entry-body">
+                <p>外面的雨好吵 我的记忆最近是不是出现问题了 好有点难受</p>
+            </div>
+            <div class="entry-source" data-device="手机">来源：手机</div>
+        </article>
+
+        <!-- ===== 日记条目 4 ===== -->
+        <article class="entry">
+            <div class="entry-header">
+                <span class="entry-date">8/17日</span>
+                <span class="entry-weather">🌧️ 雨</span>
+                <span class="entry-mood">心情：无</span>
+            </div>
+            <div class="entry-body">
+                <p>最近妈妈搞的饮料怎么越来越苦了 过一会不苦之后 头就好晕 好难受</p>
+            </div>
+            <div class="entry-source" data-device="手机">来源：手机</div>
+        </article>
+
+        <!-- ===== 解锁区域（初始隐藏） ===== -->
+        <div class="unlock-section hidden" id="unlockSection">
+            <div class="unlock-label">
+                <span class="lock-emoji">🔒</span>
+                输入密语以解锁隐藏之页
+                <span class="label-line"></span>
+            </div>
+            <div class="unlock-row">
+                <input type="text" id="passwordInput" placeholder="输入密语..." autocomplete="off" spellcheck="false" />
+                <button id="unlockBtn">🔓 解锁</button>
+            </div>
+            <div class="unlock-message" id="unlockMessage"></div>
+        </div>
+
+        <!-- ===== 隐藏日记（初始隐藏） ===== -->
+        <article class="entry entry-hidden" id="hiddenEntry">
+            <div class="entry-header">
+                <span class="entry-date">8/21日 <span class="lock-icon">🔓</span></span>
+                <span class="entry-weather">🌙 夜</span>
+                <span class="entry-mood">心情：惊醒</span>
+            </div>
+            <div class="entry-body">
+                <p>我偷偷把今天的饮料倒掉了。妈妈没有发现。头不再晕了，一些画面在脑中闪现——那是一个不认识的孩子，在哭。</p>
+                <p>爸爸昨晚说漏了嘴：<span class="highlight">"那个孩子"</span>。我不是他们的孩子。我到底是谁？</p>
+                <p>深夜，我在墙上用手指划下字迹，黑暗中它们微微发光。我凑近看清了——</p>
+                <span class="code-line">'I'VE ALWAYS KNOWN'</span>
+                <p>那是我自己的笔迹。我一直在寻找的答案，原来我早就知道。</p>
+            </div>
+            <div class="entry-source" data-device="记忆">来源：记忆深处</div>
+        </article>
+
+        <!-- ===== 页脚（点击三次触发解锁） ===== -->
+        <div class="diary-footer" id="footerTrigger">— 此 页 无 声 —</div>
+
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const PASSWORD = "I'VE ALWAYS KNOWN";
+            const input = document.getElementById('passwordInput');
+            const unlockBtn = document.getElementById('unlockBtn');
+            const message = document.getElementById('unlockMessage');
+            const section = document.getElementById('unlockSection');
+            const hiddenEntry = document.getElementById('hiddenEntry');
+            const footer = document.getElementById('footerTrigger');
+
+            let isUnlocked = false;
+            let clickCount = 0;
+
+            // 显示消息
+            function showMessage(text, type) {
+                message.textContent = text;
+                message.className = 'unlock-message';
+                if (type) {
+                    message.classList.add(type);
+                }
+                if (type === 'error') {
+                    clearTimeout(message._timer);
+                    message._timer = setTimeout(() => {
+                        if (!isUnlocked) {
+                            message.textContent = '';
+                            message.className = 'unlock-message';
+                        }
+                    }, 3000);
+                }
+            }
+
+            // 解锁逻辑
+            function unlock() {
+                if (isUnlocked) return;
+
+                const val = input.value.trim();
+                if (val === PASSWORD) {
+                    isUnlocked = true;
+                    showMessage('🔓 密语正确 · 隐藏之页已开启', 'success');
+                    // 隐藏解锁区域
+                    section.classList.add('hidden');
+                    // 显示隐藏日记
+                    hiddenEntry.classList.add('revealed');
+                    setTimeout(() => {
+                        hiddenEntry.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 400);
+                    input.value = '';
+                    input.disabled = true;
+                    unlockBtn.disabled = true;
+                    unlockBtn.style.opacity = '0.5';
+                    unlockBtn.style.cursor = 'default';
+                } else {
+                    showMessage('❌ 密语错误，请重试', 'error');
+                    input.classList.add('error');
+                    setTimeout(() => {
+                        input.classList.remove('error');
+                    }, 500);
+                    input.value = '';
+                    input.focus();
+                }
+            }
+
+            // 显示解锁区域（由页脚点击触发）
+            function showUnlockSection() {
+                if (isUnlocked) return; // 已解锁则不再显示
+                section.classList.remove('hidden');
+                // 聚焦输入框
+                setTimeout(() => {
+                    input.focus();
+                }, 200);
+                // 重置计数，避免连续触发
+                clickCount = 0;
+            }
+
+            // 页脚点击计数
+            footer.addEventListener('click', function(e) {
+                if (isUnlocked) return; // 已解锁忽略点击
+                clickCount++;
+                if (clickCount >= 3) {
+                    showUnlockSection();
+                }
+                // 可以给用户一些反馈（可选）
+                if (clickCount < 3) {
+                    // 简单改变透明度提示
+                    footer.style.opacity = '0.5';
+                    setTimeout(() => {
+                        footer.style.opacity = '';
+                    }, 200);
+                }
+            });
+
+            // 解锁按钮点击
+            unlockBtn.addEventListener('click', unlock);
+
+            // 回车键解锁
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    unlock();
+                }
+            });
+
+            // 输入时清除错误状态
+            input.addEventListener('input', function() {
+                if (this.classList.contains('error')) {
+                    this.classList.remove('error');
+                }
+                if (message.classList.contains('error')) {
+                    message.textContent = '';
+                    message.className = 'unlock-message';
+                }
+            });
+
+            // 图片加载失败处理
+            document.querySelector('.header-image')?.addEventListener('error', function() {
+                this.style.display = 'none';
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
