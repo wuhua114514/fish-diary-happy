@@ -48,21 +48,6 @@
             flex-wrap: wrap;
         }
 
-        .header-image {
-            height: 56px;
-            width: auto;
-            border-radius: 4px;
-            filter: drop-shadow(0 0 20px rgba(180, 120, 80, 0.20)) drop-shadow(0 0 60px rgba(120, 80, 50, 0.08));
-            transition: filter 0.4s ease, transform 0.4s ease;
-            flex-shrink: 0;
-            image-rendering: auto;
-        }
-
-        .header-image:hover {
-            filter: drop-shadow(0 0 30px rgba(180, 120, 80, 0.35)) drop-shadow(0 0 80px rgba(120, 80, 50, 0.15));
-            transform: scale(1.02);
-        }
-
         .header-text {
             display: flex;
             flex-direction: column;
@@ -574,10 +559,6 @@
                 gap: 10px;
             }
 
-            .header-image {
-                height: 40px;
-            }
-
             .diary-header h1 {
                 font-size: 30px;
                 letter-spacing: 4px;
@@ -667,10 +648,6 @@
                 gap: 8px;
             }
 
-            .header-image {
-                height: 32px;
-            }
-
             .entry-header {
                 gap: 4px 10px;
             }
@@ -732,7 +709,6 @@
 
         <!-- ===== 标题 ===== -->
         <header class="diary-header">
-            <img src="a.png" alt="暗之印记" class="header-image" onerror="this.style.display='none'" />
             <div class="header-text">
                 <h1>日记</h1>
                 <div class="subtitle">— 暗 · 录 —</div>
@@ -961,11 +937,6 @@
                     message.textContent = '';
                     message.className = 'unlock-message';
                 }
-            });
-
-            // 图片加载失败处理
-            document.querySelector('.header-image')?.addEventListener('error', function() {
-                this.style.display = 'none';
             });
 
         })();
