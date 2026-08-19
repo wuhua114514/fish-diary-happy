@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>日记 · 暗</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0b0a12;
+            background-image:
+                radial-gradient(ellipse at 20% 30%, rgba(60, 20, 40, 0.35) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 70%, rgba(30, 10, 50, 0.40) 0%, transparent 55%),
+                linear-gradient(145deg, #0b0a12 0%, #15101e 100%);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px 60px;
+            font-family: 'Ma Shan Zheng', '华文行楷', '楷体', serif;
+            color: #2d1f14;
+        }
+
+        /* ===== 日记本容器 ===== */
+        .diary-container {
+            max-width: 620px;
+            width: 100%;
+            position: relative;
+        }
+
+        /* ===== 标题 ===== */
+        .diary-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .diary-header h1 {
+            font-family: 'Ma Shan Zheng', '华文行楷', '楷体', serif;
+            font-size: 42px;
+            font-weight: normal;
+            color: #d9c8b0;
+            letter-spacing: 8px;
+            text-shadow: 0 0 30px rgba(180, 120, 80, 0.15), 0 4px 20px rgba(0, 0, 0, 0.6);
+            position: relative;
+            display: inline-block;
+        }
+
+        .diary-header h1::before {
+            content: '❖';
+            font-size: 20px;
+            color: #8b5a3a;
+            opacity: 0.5;
+            margin-right: 14px;
+            vertical-align: middle;
+        }
+        .diary-header h1::after {
+            content: '❖';
+            font-size: 20px;
+            color: #8b5a3a;
+            opacity: 0.5;
+            margin-left: 14px;
+            vertical-align: middle;
+        }
+
+        .diary-header .subtitle {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 14px;
+            color: #7a6553;
+            letter-spacing: 12px;
+            margin-top: 4px;
+            opacity: 0.6;
+        }
+
+        /* ===== 装饰分割线 ===== */
+        .divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #8b6b4f, transparent);
+            margin: 0 auto 36px;
+            opacity: 0.3;
+        }
+
+        /* ===== 单篇日记卡片 ===== */
+        .entry {
+            background: linear-gradient(165deg, #f3e6d4 0%, #e6d5be 100%);
+            border-radius: 6px 6px 8px 8px;
+            padding: 30px 32px 26px;
+            margin-bottom: 32px;
+            position: relative;
+            box-shadow:
+                0 8px 40px rgba(0, 0, 0, 0.55),
+                0 2px 8px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 245, 230, 0.5);
+            transition: transform 0.25s ease, box-shadow 0.3s ease;
+            animation: fadeUp 0.6s ease both;
+            /* 纸张纹理 */
+            background-image:
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(180, 150, 120, 0.04) 2px,
+                    rgba(180, 150, 120, 0.04) 4px),
+                radial-gradient(ellipse at 30% 20%, rgba(200, 170, 140, 0.10) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(160, 130, 100, 0.08) 0%, transparent 50%);
+        }
+
+        /* 纸张边缘破损感 */
+        .entry::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(180, 150, 120, 0.15) 10%,
+                    transparent 20%,
+                    rgba(180, 150, 120, 0.10) 40%,
+                    transparent 55%,
+                    rgba(180, 150, 120, 0.12) 75%,
+                    transparent 90%);
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            filter: blur(1px);
+        }
+
+        .entry::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg,
+                    transparent 5%,
+                    rgba(140, 110, 80, 0.08) 25%,
+                    transparent 45%,
+                    rgba(140, 110, 80, 0.06) 65%,
+                    transparent 85%);
+            filter: blur(1px);
+        }
+
+        /* 不同日记的动画延迟 */
+        .entry:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+        .entry:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+        .entry:nth-child(3) {
+            animation-delay: 0.25s;
+        }
+        .entry:nth-child(4) {
+            animation-delay: 0.35s;
+        }
+        .entry:nth-child(5) {
+            animation-delay: 0.45s;
+        }
+
+        .entry:hover {
+            transform: translateY(-3px);
+            box-shadow:
+                0 14px 50px rgba(0, 0, 0, 0.65),
+                0 4px 12px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255, 245, 230, 0.5);
+        }
+
+        /* ===== 日记头部 (日期/天气/心情) ===== */
+        .entry-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px 16px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid rgba(160, 130, 105, 0.25);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .entry-date {
+            font-family: 'Ma Shan Zheng', '华文行楷', '楷体', serif;
+            font-size: 22px;
+            color: #7a3a2a;
+            letter-spacing: 1px;
+            font-weight: normal;
+        }
+
+        .entry-weather {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 16px;
+            color: #6a5a4a;
+            background: rgba(160, 130, 105, 0.12);
+            padding: 0 12px;
+            border-radius: 20px;
+            line-height: 1.8;
+        }
+
+        .entry-mood {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 15px;
+            color: #7a6a5a;
+            margin-left: auto;
+            letter-spacing: 1px;
+            opacity: 0.7;
+        }
+
+        .entry-mood::before {
+            content: '♢ ';
+            color: #9a7a5a;
+            opacity: 0.5;
+        }
+
+        /* ===== 正文 ===== */
+        .entry-body {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 17px;
+            line-height: 2;
+            color: #2d1f14;
+            letter-spacing: 0.5px;
+            padding: 2px 0 4px;
+            text-align: justify;
+        }
+
+        .entry-body p {
+            text-indent: 2em;
+            margin: 0;
+        }
+
+        /* ===== 来源 ===== */
+        .entry-source {
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 13px;
+            color: #8a7a6a;
+            text-align: right;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed rgba(160, 130, 105, 0.20);
+            letter-spacing: 2px;
+            opacity: 0.65;
+        }
+
+        .entry-source::before {
+            content: '📎 ';
+            font-size: 12px;
+            opacity: 0.5;
+        }
+
+        /* ===== 特殊：最后一条的神秘代码 ===== */
+        .entry-last .entry-body .code-block {
+            margin: 14px 0 6px;
+            padding: 14px 18px;
+            background: rgba(20, 15, 30, 0.75);
+            border-radius: 4px;
+            border-left: 3px solid #b8864a;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            font-size: 15px;
+            letter-spacing: 1.5px;
+            color: #c8b898;
+            text-shadow: 0 0 12px rgba(180, 150, 100, 0.15);
+            text-indent: 0;
+            line-height: 1.8;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .entry-last .entry-body .code-block::before {
+            content: '▸ ';
+            color: #b8864a;
+            opacity: 0.6;
+        }
+
+        /* 代码的呼吸光效 */
+        .entry-last .entry-body .code-block {
+            animation: codeGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes codeGlow {
+            0%,
+            100% {
+                box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3), 0 0 8px rgba(180, 150, 100, 0.05);
+                border-left-color: #b8864a;
+            }
+            50% {
+                box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(180, 150, 100, 0.12);
+                border-left-color: #d4a86a;
+            }
+        }
+
+        /* 最后一条日记的特殊标记 */
+        .entry-last {
+            border-left: 3px solid rgba(180, 120, 70, 0.25);
+            position: relative;
+        }
+
+        .entry-last .entry-header .entry-date {
+            color: #8a3a2a;
+        }
+
+        /* ===== 来源特殊标记：手表 ===== */
+        .entry-source[data-device="手表"]::before {
+            content: '⌚ ';
+            font-size: 13px;
+        }
+        .entry-source[data-device="手机"]::before {
+            content: '📱 ';
+            font-size: 13px;
+        }
+
+        /* ===== 动画 ===== */
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(24px) scale(0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ===== 页脚 ===== */
+        .diary-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-family: 'ZCOOL XiaoWei', '楷体', serif;
+            font-size: 13px;
+            color: #4a3a2e;
+            letter-spacing: 4px;
+            opacity: 0.2;
+            padding: 20px 0 10px;
+            border-top: 1px solid rgba(100, 80, 60, 0.08);
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 12px 40px;
+            }
+
+            .diary-header h1 {
+                font-size: 30px;
+                letter-spacing: 4px;
+            }
+            .diary-header h1::before,
+            .diary-header h1::after {
+                font-size: 14px;
+                margin: 0 8px;
+            }
+            .diary-header .subtitle {
+                font-size: 12px;
+                letter-spacing: 6px;
+            }
+
+            .entry {
+                padding: 20px 18px 18px;
+                margin-bottom: 24px;
+                border-radius: 4px;
+            }
+
+            .entry-date {
+                font-size: 19px;
+            }
+            .entry-weather {
+                font-size: 14px;
+                padding: 0 10px;
+            }
+            .entry-mood {
+                font-size: 13px;
+                margin-left: auto;
+            }
+            .entry-body {
+                font-size: 15px;
+                line-height: 1.9;
+            }
+
+            .entry-last .entry-body .code-block {
+                font-size: 13px;
+                padding: 12px 14px;
+                letter-spacing: 0.5px;
+                word-break: break-all;
+            }
+
+            .entry-source {
+                font-size: 12px;
+            }
+
+            .divider {
+                width: 40px;
+                margin-bottom: 24px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .entry-header {
+                gap: 4px 10px;
+            }
+            .entry-date {
+                font-size: 17px;
+            }
+            .entry-weather {
+                font-size: 12px;
+                padding: 0 8px;
+            }
+            .entry-mood {
+                font-size: 12px;
+            }
+            .entry-body {
+                font-size: 14px;
+            }
+            .entry {
+                padding: 16px 14px 14px;
+            }
+        }
+
+        /* ===== 滚动条美化 ===== */
+        ::-webkit-scrollbar {
+            width: 4px;
+            background: #0b0a12;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0a12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a3a2e;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #5a4a3e;
+        }
+
+        /* ===== 选中文字样式 ===== */
+        ::selection {
+            background: rgba(180, 130, 80, 0.25);
+            color: #2d1f14;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="diary-container">
+
+        <!-- ===== 标题 ===== -->
+        <header class="diary-header">
+            <h1>日记</h1>
+            <div class="subtitle">— 暗 · 录 —</div>
+        </header>
+        <div class="divider"></div>
+
+        <!-- ===== 日记条目 1 ===== -->
+        <article class="entry">
+            <div class="entry-header">
+                <span class="entry-date">8/8日</span>
+                <span class="entry-weather">☀️ 晴</span>
+                <span class="entry-mood">心情：无</span>
+            </div>
+            <div class="entry-body">
+                <p>今天妈妈又给我搞了饮料 说来也很奇怪 似乎从很久之前妈妈就要求我每天必须喝这个 刚入口好苦啊 即使我喝过这么多次 还是那么苦</p>
+            </div>
+            <div class="entry-source" data-device="手机">来源：手机</div>
+        </article>
+
+        <!-- ===== 日记条目 2 ===== -->
+        <article class="entry">
+            <div class="entry-header">
+                <span class="entry-date">8/9日</span>
+                <span class="entry-weather">☁️ 阴</span>
+                <span class="entry-mood">心情：无</span>
+            </div>
+            <div class="entry-body">
+                <p>昨天父母吵了一架 好像是因为我。我是不是活在世上就是个累赘。</p>
+            </div>
+            <div class="entry-source" data-device="手机">来源：手机</div>
+        </article>
+
+        <!-- ===== 日记条目 3 ===== -->
+        <article class="entry">
+            <div class="entry-header">
+                <span class="entry-date">8/13日</span>
+                <span class="entry-weather">🌧️ 雨</span>
+                <span class="entry-mood">心情：无</span>
+            </div>
+            <div class="entry-body">
+                <p>外面的雨好吵 我的记忆最近是不是出现问题了 好有点难受</p>
+            </div>
+            <div class="entry-source" data-device="手机">来源：手机</div>
+        </article>
+
+        <!-- ===== 日记条目 4 ===== -->
+        <article class="entry">
+            <div class="entry-header">
+                <span class="entry-date">8/17日</span>
+                <span class="entry-weather">🌧️ 雨</span>
+                <span class="entry-mood">心情：无</span>
+            </div>
+            <div class="entry-body">
+                <p>最近妈妈搞的饮料怎么越来越苦了 过一会不苦之后 头就好晕 好难受</p>
+            </div>
+            <div class="entry-source" data-device="手机">来源：手机</div>
+        </article>
+
+        <!-- ===== 日记条目 5 (最后一条 · 特殊) ===== -->
+        <article class="entry entry-last">
+            <div class="entry-header">
+                <span class="entry-date">8/18日</span>
+                <span class="entry-weather">🌧️ 雨</span>
+                <span class="entry-mood">心情：无</span>
+            </div>
+            <div class="entry-body">
+                <p>昨晚睡的很沉 我一觉醒来就被关起来了 这是哪里 谁能帮帮我 窗户外面好像是麦田</p>
+                <!-- 神秘代码 -->
+                <div class="code-block">DDI.FGJHEGD0, FG.HIIGD00F</div>
+            </div>
+            <div class="entry-source" data-device="手表">来源：手表</div>
+        </article>
+
+        <!-- ===== 页脚 ===== -->
+        <div class="diary-footer">— 此 页 无 声 —</div>
+
+    </div>
+
+</body>
+</html>
